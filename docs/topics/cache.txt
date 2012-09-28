@@ -744,6 +744,21 @@ of key-value pairs::
 
 Like ``cache.set()``, ``set_many()`` takes an optional ``timeout`` parameter.
 
+In cases where you may wish to use either a cached value or create a new cached value
+there is the ``get_or_set()`` method. It takes the same parameters as get but rather than simply return
+the default value, the default is set as the new cache value for that key. If the default value is callable
+it's return value will be stored. Returns a tuple of (object, is_set), where is_set is a boolean 
+specifying whether the key is new in the cache
+
+    >>> cache.get_or_set('a',1)
+    1, True
+    >>> cache.get('a')
+    1
+    >>> cache.set('b',1)
+    >>> cache.get_or_set('b',2)
+    1, False
+.. versionadded:: 1.5
+
 You can delete keys explicitly with ``delete()``. This is an easy way of
 clearing the cache for a particular object::
 

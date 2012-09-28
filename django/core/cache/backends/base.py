@@ -125,6 +125,27 @@ class BaseCache(object):
                 d[k] = val
         return d
 
+    def get_or_set(self, key, default, timeout=None, version=None):
+        """
+        Fetch a given key from the cache. If the key does not exist,
+        the default value is added to cache. If the default value is callable
+        the key will be set to return of default value.
+        Returns a tuple of (object, is_set), where is_set is a boolean
+        specifying whether the key is new in the cache
+        """
+        val, is_set = self.get(key, version=version), False
+        if val is None:
+            if callable(default):
+                val = default()
+            else:
+                val = default
+            is_set = self.add(key, val, timeout, version)
+            if not is_set:
+                val, is_set = self.get(key, version=version), False
+                if val is None:
+                    raise ValueError("get_or_set failed on Key '%s'" % key)
+        return val, is_set
+
     def has_key(self, key, version=None):
         """
         Returns True if the key is in the cache and has not expired.

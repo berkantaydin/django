@@ -228,6 +228,26 @@ class BaseCacheTests(object):
         self.assertEqual(self.cache.get_many(['a', 'c', 'd']), {'a' : 'a', 'c' : 'c', 'd' : 'd'})
         self.assertEqual(self.cache.get_many(['a', 'b', 'e']), {'a' : 'a', 'b' : 'b'})
 
+    def test_get_or_set(self):
+        #Test when no value is set
+        val, is_set = self.cache.get_or_set('a', 'a')
+        self.assertEqual(is_set, True)
+        self.assertEqual(val, 'a')
+        self.assertEqual(self.cache.get('a'), 'a')
+
+        #Test an existing value
+        self.cache.set('b', 'b')
+        self.assertEqual(self.cache.get_or_set('b', 'c'), ('b', False))
+
+        #Test a callable
+        def cache_val():
+            return 'c'
+
+        val, is_set = self.cache.get_or_set('c', cache_val)
+        self.assertEqual(is_set, True)
+        self.assertEqual(val, 'c')
+        self.assertEqual(self.cache.get('c'), 'c')
+
     def test_delete(self):
         # Cache keys can be deleted
         self.cache.set("key1", "spam")
